@@ -10,7 +10,7 @@ composer require qq958691165/tp3-lara-blade
 
 若无"APP_DIR"常量请先定义该常量，值为Runtime的父级目录
 
-#### 2.1 创建基数AbstractController
+#### 2.1 创建基类AbstractController
 ```php
 use Tp3LaraBlade\Library\BladeView;
 
