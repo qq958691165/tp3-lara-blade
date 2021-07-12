@@ -17,16 +17,14 @@ use Illuminate\View\Factory;
 use Illuminate\View\FileViewFinder;
 use Illuminate\View\View;
 use Think\Hook;
+use Tp3LaraBlade\RegisterContainer;
 
 /**
  * ThinkPHP 视图类
  */
 class BladeView {
     private static $_self;
-
-    protected $file;
-    protected $compiler;
-    protected $resolver;
+    private $_factory;
 
     public static function instance(){
         if (!self::$_self){
@@ -47,13 +45,21 @@ class BladeView {
         $this->resolver=$resolver;
     }
 
-    protected function getFactory($prefix=''){
+    public function getFactory($prefix=''){
+
+        if ($this->_factory){
+            return $this->_factory;
+        }
         if ($prefix) {
-            $this->compiler->setPath(APP_DIR.'/Runtime/Cache/'.$prefix);
+            $this->compiler->setCachePath(APP_DIR.'/Runtime/Cache/'.$prefix);
         }
         $event=new Dispatcher();
-        $factory = new Factory($this->resolver,new FileViewFinder($this->file,[]),$event);
-        return $factory;
+        $factory = new BladeFactory($this->resolver,new FileViewFinder($this->file,[]),$event);
+        foreach (RegisterContainer::getNamespaces() as $namespace=>$path) {
+            $factory->addNamespace($namespace,$path);
+        }
+        $this->_factory=$factory;
+        return $this->_factory;
     }
 
     /**

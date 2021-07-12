@@ -23,4 +23,31 @@ class AbstractController extends \Think\Controller {
 }
 ```
 
-#### 2.2 控制器继承AbstractController类即可
+#### 2.2 控制器继承AbstractController类即可使用
+Home/Controller/IndexController.class.php
+```php
+class IndexController extends AbstractController{
+    public function index(){
+        $this->msg='123456';
+//        $str=$this->fetch();
+//        dump($str);
+        $this->display();
+    }
+}
+```
+
+Home/View/default/Index/index.blade.php
+```html
+@extends('Home::default.Index.layout')
+@section('body')
+<p>hello {{$msg}}</p>
+@endsection
+```
+
+### 3.说明
+#### blade模板语法请参考[laravel文档](https://learnku.com/docs/laravel/5.8/blade/3902)
+
+#### 若要启用@extends用法，则需要注册命名空间，以命名空间的方式去调用继承的视图(默认已注册Home模块)
+```php
+\Tp3LaraBlade\RegisterContainer::registerNamespace('Admin',APP_DIR.'/Admin/View');
+```
