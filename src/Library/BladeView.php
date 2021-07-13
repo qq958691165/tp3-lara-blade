@@ -9,57 +9,21 @@
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
 namespace Tp3LaraBlade\Library;
-use Illuminate\Events\Dispatcher;
-use Illuminate\Filesystem\Filesystem;
-use Illuminate\View\Engines\CompilerEngine;
-use Illuminate\View\Engines\EngineResolver;
-use Illuminate\View\Factory;
-use Illuminate\View\FileViewFinder;
 use Illuminate\View\View;
 use Think\Hook;
-use Tp3LaraBlade\RegisterContainer;
+use Think\Template\Driver\Blade;
 
 /**
  * ThinkPHP 视图类
  */
 class BladeView {
     private static $_self;
-    private $_factory;
 
     public static function instance(){
         if (!self::$_self){
             self::$_self=new self();
         }
         return self::$_self;
-    }
-
-    private function __construct()
-    {
-        $this->file=new Filesystem();
-        $this->compiler=new BladeCompiler($this->file,APP_DIR.'/Runtime/Cache');
-        $resolver=new EngineResolver();
-        $resolver->register('blade',function (){
-            return new CompilerEngine($this->compiler);
-        });
-
-        $this->resolver=$resolver;
-    }
-
-    public function getFactory($prefix=''){
-
-        if ($this->_factory){
-            return $this->_factory;
-        }
-        if ($prefix) {
-            $this->compiler->setCachePath(APP_DIR.'/Runtime/Cache/'.$prefix);
-        }
-        $event=new Dispatcher();
-        $factory = new BladeFactory($this->resolver,new FileViewFinder($this->file,[]),$event);
-        foreach (RegisterContainer::getNamespaces() as $namespace=>$path) {
-            $factory->addNamespace($namespace,$path);
-        }
-        $this->_factory=$factory;
-        return $this->_factory;
     }
 
     /**
@@ -160,7 +124,8 @@ class BladeView {
         }else{
             defined('THEME_PATH') or    define('THEME_PATH', $this->getThemePath());
         }
-        $factory=$this->getFactory($prefix);
+        $blade=new Blade();
+        $factory=$blade->getFactory($prefix);
         $content=$factory->file($templateFile)->with($this->tVar)->render();
         // 输出模板文件
         return $content;
@@ -200,7 +165,7 @@ class BladeView {
         $file   =   THEME_PATH.$template.$suffix;
         if(C('TMPL_LOAD_DEFAULTTHEME') && THEME_NAME != C('DEFAULT_THEME') && !is_file($file)){
             // 找不到当前主题模板的时候定位默认主题中的模板
-            $file   =   dirname(theme_path).'/'.C('DEFAULT_THEME').'/'.$template.$suffix;
+            $file   =   dirname(THEME_PATH).'/'.C('DEFAULT_THEME').'/'.$template.$suffix;
         }
         return $file;
     }

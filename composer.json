@@ -17,7 +17,7 @@
             "Tp3LaraBlade\\": "src/"
         },
         "files": [
-            "src/functions.php"
+            "./autoload.php"
         ]
     }
 }
